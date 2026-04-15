@@ -170,6 +170,7 @@ RunMainLoop() {
 			
 			if ImageSearch(&UpX, &UpY, 0, 0, A_ScreenWidth, A_ScreenHeight, "up.png") {
 				Click(UpX + 10, UpY + 10) ; Adjust +10 if you need to click further into the center of the image
+				Click(UpX + 5, UpY + 5) ;
 				Sleep(100)
 				Send("{Esc}")
 				Sleep(100)
@@ -188,6 +189,7 @@ RunMainLoop() {
 			}
 			else {
 				ToolTip("Attempt " A_Index " failed")
+				SetTimer(() => ToolTip(), -200)
 				SoundBeep 800, 100
 			}
 		}
@@ -222,13 +224,9 @@ selWorld(inputVal) {
 
 selChannel(inputVal) {
 	global userDelay
+	inputVal := inputVal - 1
     downPresses := inputVal // 5
-    
-    ; Prevent negative numbers if inputVal is 0
-    rightMath := inputVal - 1
-    if (rightMath < 0)
-        rightMath := 0
-    rightPresses := Mod(rightMath, 5) 
+    rightPresses := Mod(inputVal, 5) 
 
     Loop downPresses {
         Send("{Down}")
