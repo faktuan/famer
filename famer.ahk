@@ -21,6 +21,12 @@ global numChar := IniRead("config.ini", "default", "char", 1)
 global userChan := IniRead("config.ini", "default", "channel", 1)
 global userDelay := IniRead("config.ini", "default", "delay", 1)
 
+global accs := StrSplit(IniRead("config.ini", "default", "accs", ""), ",")
+for i, v in accs
+    accs[i] := Trim(v)
+
+global acc := 1
+
 global isFirstRun := true ; Tracks if the script is resuming from a fresh login
 
 ; ==========================================
@@ -110,10 +116,10 @@ StartSequence(GuiCtrlObj, Info) {
 ; ==========================================
 
 RunMainLoop() {
-    global isRunning, userPass, userPin, numChar, userChan, savedX, savedY, targetWindow, maxChar, userDelay
+    global isRunning, userPass, userPin, numChar, userChan, savedX, savedY, targetWindow, maxChar, userDelay, accs, acc
 
     ; 6. Repeat until stopped or numChar reaches maxChar
-    while (isRunning && numChar <= maxChar) {
+    while (isRunning) {
         
         ; Ensure the game is still running
         if !WinExist(targetWindow) {
@@ -169,7 +175,6 @@ RunMainLoop() {
 			Sleep(300)
 			
 			if ImageSearch(&UpX, &UpY, 0, 0, A_ScreenWidth, A_ScreenHeight, "up.png") {
-				Click(UpX + 10, UpY + 10) ; Adjust +10 if you need to click further into the center of the image
 				Click(UpX + 5, UpY + 5) ;
 				Sleep(100)
 				Send("{Esc}")
@@ -193,11 +198,13 @@ RunMainLoop() {
 				SoundBeep 800, 100
 			}
 		}
-    }
-    if (numChar > maxChar) {
-        MsgBox("Finished: Reached character limit (" maxChar ").")
-		SoundBeep 400, 500
-        isRunning := false
+	    if (numChar > maxChar) {
+			if(!nextAcc()){
+				MsgBox("Finished: Reached character limit (" maxChar ").")
+				SoundBeep 400, 500
+				isRunning := false
+			}
+		}
     }
 }
 
@@ -224,9 +231,13 @@ selWorld(inputVal) {
 
 selChannel(inputVal) {
 	global userDelay
-	inputVal := inputVal - 1
     downPresses := inputVal // 5
-    rightPresses := Mod(inputVal, 5) 
+    
+    ; Prevent negative numbers if inputVal is 0
+    rightMath := inputVal - 1
+    if (rightMath < 0)
+        rightMath := 0
+    rightPresses := Mod(rightMath, 5) 
 
     Loop downPresses {
         Send("{Down}")
@@ -273,4 +284,19 @@ selChar() {
     Sleep(200)
     Send("{Enter}")
     numChar := numChar + 1
+}
+
+nextAcc(){
+	global accs, numChar, maxChar, userDelay
+	if(accs.Length == 0){
+		return false
+	}
+	Sleep(1000 * userDelay)
+	Send("+{Tab}{Delete 12}" accs[acc] "{Tab}")
+	accs.RemoveAt(1)
+	numChar := 1
+	maxChar := 3
+	isFirstrun := true
+	
+	return true
 }
