@@ -239,20 +239,15 @@ selWorld(inputVal) {
 
 selChannel(inputVal) {
 	global userDelay
+	inputVal := inputVal - 1
     downPresses := inputVal // 5
-    
-    ; Prevent negative numbers if inputVal is 0
-    rightMath := inputVal - 1
-    if (rightMath < 0)
-        rightMath := 0
-    rightPresses := Mod(rightMath, 5) 
 
     Loop downPresses {
         Send("{Down}")
         Sleep(10 * userDelay)
     }
 
-    Loop rightPresses {
+    Loop Mod(inputVal, 5) {
         Send("{Right}")
         Sleep(10 * userDelay)
     }
