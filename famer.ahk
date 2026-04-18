@@ -21,11 +21,19 @@ global numChar := IniRead("config.ini", "default", "char", 1)
 global userChan := IniRead("config.ini", "default", "channel", 1)
 global userDelay := IniRead("config.ini", "default", "delay", 1)
 
-global accs := StrSplit(IniRead("config.ini", "default", "accs", ""), ",")
-for i, v in accs
-    accs[i] := Trim(v)
+global accs := IniRead("config.ini", "default", "accs", "")
+raw := accs
 
-global acc := 1
+accs := []
+for item in StrSplit(raw, ",")
+{
+    item := Trim(item)
+    if !item
+        continue
+
+    parts := StrSplit(item, A_Space)
+    accs.Push([parts[1], Integer(parts[2])])
+}
 
 global isFirstRun := true ; Tracks if the script is resuming from a fresh login
 
@@ -116,8 +124,7 @@ StartSequence(GuiCtrlObj, Info) {
 ; ==========================================
 
 RunMainLoop() {
-    global isRunning, userPass, userPin, numChar, userChan, savedX, savedY, targetWindow, maxChar, userDelay, accs, acc
-
+    global isRunning, userPass, userPin, numChar, userChan, savedX, savedY, targetWindow, maxChar, userDelay, accs
     ; 6. Repeat until stopped or numChar reaches maxChar
     while (isRunning) {
         
@@ -184,6 +191,7 @@ RunMainLoop() {
 				Send("{Up}")
 				Sleep(100)
 				Send("{Enter}")
+				MouseMove 0, 0
 				Sleep(1000*userDelay) ; Wait for reset/transition before looping back
 				break
 			}
@@ -292,10 +300,10 @@ nextAcc(){
 		return false
 	}
 	Sleep(1000 * userDelay)
-	Send("+{Tab}{Delete 12}" accs[acc] "{Tab}")
-	accs.RemoveAt(1)
+	Send("+{Tab}{Delete 12}" accs[1][1] "{Tab}")
 	numChar := 1
-	maxChar := 3
+	maxChar := accs[1][2]
+	accs.RemoveAt(1)
 	isFirstrun := true
 	
 	return true
