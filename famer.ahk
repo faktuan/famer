@@ -6,8 +6,8 @@ if !A_IsAdmin {
 }
 
 
-CoordMode("Mouse", "Screen")
-CoordMode("Pixel", "Screen")
+CoordMode("Mouse", "Window")
+CoordMode("Pixel", "Window")
 
 ; Global variables
 global targetWindow := "ahk_exe kaizen v92.exe"
@@ -191,7 +191,7 @@ RunMainLoop() {
 				Send("{Up}")
 				Sleep(100)
 				Send("{Enter}")
-				MouseMove 40, 40, 1
+				MouseMove(0, 0, 10)
 				Sleep(1000*userDelay) ; Wait for reset/transition before looping back
 				break
 			}
@@ -206,7 +206,7 @@ RunMainLoop() {
 				SoundBeep 800, 100
 			}
 		}
-	    if (numChar > maxChar) {
+	    if (numChar > maxChar && isRunning) {
 			if(!nextAcc()){
 				MsgBox("Finished: Reached character limit (" maxChar ").")
 				SoundBeep 400, 500
@@ -291,17 +291,15 @@ selChar() {
 }
 
 nextAcc(){
-	global accs, numChar, maxChar, userDelay
+	global accs, numChar, maxChar, userDelay, targetWindow
 	if(accs.Length == 0){
 		return false
 	}
 	Sleep(1000 * userDelay)
-	Send("+{Tab}")
+	Click(700,400)
 	Sleep(100)
-	Send("{Delete 12}" accs[1][1])
-	Sleep(100)
-	Send("{Tab}")
-	Sleep(100)
+	MouseMove(0,0,10)
+	Send("{Backspace 15}" accs[1][1] "{Tab}")
 	numChar := 1
 	maxChar := accs[1][2]
 	accs.RemoveAt(1)
