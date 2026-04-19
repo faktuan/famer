@@ -191,7 +191,7 @@ RunMainLoop() {
 				Send("{Up}")
 				Sleep(100)
 				Send("{Enter}")
-				MouseMove 0, 0
+				MouseMove 40, 40, 1
 				Sleep(1000*userDelay) ; Wait for reset/transition before looping back
 				break
 			}
@@ -211,6 +211,7 @@ RunMainLoop() {
 				MsgBox("Finished: Reached character limit (" maxChar ").")
 				SoundBeep 400, 500
 				isRunning := false
+				break
 			}
 		}
     }
@@ -295,7 +296,12 @@ nextAcc(){
 		return false
 	}
 	Sleep(1000 * userDelay)
-	Send("+{Tab}{Delete 12}" accs[1][1] "{Tab}")
+	Send("+{Tab}")
+	Sleep(100)
+	Send("{Delete 12}" accs[1][1])
+	Sleep(100)
+	Send("{Tab}")
+	Sleep(100)
 	numChar := 1
 	maxChar := accs[1][2]
 	accs.RemoveAt(1)
