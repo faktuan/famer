@@ -21,10 +21,9 @@ global numChar := IniRead("config.ini", "default", "char", 1)
 global userChan := IniRead("config.ini", "default", "channel", 1)
 global userDelay := IniRead("config.ini", "default", "delay", 1)
 
-global accs := IniRead("config.ini", "default", "accs", "")
-raw := accs
+raw := IniRead("config.ini", "default", "accs", "")
+global accs := []
 
-accs := []
 for item in StrSplit(raw, ",")
 {
     item := Trim(item)
@@ -142,6 +141,8 @@ RunMainLoop() {
         }
 
         ; 2. Type password, enter
+		Click(712, 425)
+		Sleep(10)
         Send(userPass)
         Sleep(200)
         Send("{Enter}")
