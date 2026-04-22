@@ -116,6 +116,7 @@ StartSequence(GuiCtrlObj, Info) {
     
     isRunning := true
     isFirstRun := true ; Reset the first run tracker every time you hit Start
+	MsgBox("give etcs plz")
     RunMainLoop()
 }
 
