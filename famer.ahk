@@ -222,9 +222,7 @@ RunMainLoop() {
     }
 }
 
-; ==========================================
-; User Provided Functions (v2 Corrected)
-; ==========================================
+; Functions
 
 selWorld(inputVal) {
 	global userDelay
@@ -307,11 +305,19 @@ nextAcc(){
 	Send("{Backspace 15}" accs[1][1] "{Tab}")
 	numChar := 1
 	
-	if(accs[1][2] != "") userPass := accs[1][2]
-	if(accs[1][3] != "") userPin := accs[1][3]
+	userPass := accs[1][2]
+	userPin := accs[1][3]
 	maxChar := accs[1][4]
 	
 	accs.RemoveAt(1)
+	Loop {
+		val := IniRead("config.ini", "accs", A_Index, "")
+
+		if (val != "") {
+			IniDelete("config.ini", "accs", A_Index)
+			break
+		}
+	}
 	isFirstrun := true
 	
 	return true
