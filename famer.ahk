@@ -20,18 +20,22 @@ global userPin := IniRead("config.ini", "default", "pin", "")
 global numChar := IniRead("config.ini", "default", "char", 1)
 global userChan := IniRead("config.ini", "default", "channel", 1)
 global userDelay := IniRead("config.ini", "default", "delay", 1)
-
-raw := IniRead("config.ini", "default", "accs", "")
 global accs := []
 
-for item in StrSplit(raw, ",")
-{
-    item := Trim(item)
-    if !item
-        continue
+if (Integer(IniRead("config.ini", "default", "multi", 0)) == 1){
+	sectionText := IniRead("config.ini", "accs")
 
-    parts := StrSplit(item, A_Space)
-    accs.Push([parts[1], Integer(parts[2])])
+	Loop Parse, sectionText, "`n", "`r" {
+		parts := StrSplit(A_LoopField, "=", " `t", 2) 
+		
+		if (parts.Length < 1)
+			continue ; Skip if it's a blank or invalid line
+			
+		rowData := parts[2]
+		
+		cleanRow := RegExReplace(rowData, "\s+", " ")
+		accs.Push(StrSplit(cleanRow, " "))
+	}
 }
 
 global isFirstRun := true ; Tracks if the script is resuming from a fresh login
@@ -292,7 +296,7 @@ selChar() {
 }
 
 nextAcc(){
-	global accs, numChar, maxChar, userDelay, targetWindow
+	global accs, numChar, maxChar, userDelay, targetWindow, userPass, userPin
 	if(accs.Length == 0){
 		return false
 	}
@@ -302,7 +306,11 @@ nextAcc(){
 	MouseMove(0,0,10)
 	Send("{Backspace 15}" accs[1][1] "{Tab}")
 	numChar := 1
-	maxChar := accs[1][2]
+	
+	if(accs[1][2] != "") userPass := accs[1][2]
+	if(accs[1][3] != "") userPin := accs[1][3]
+	maxChar := accs[1][4]
+	
 	accs.RemoveAt(1)
 	isFirstrun := true
 	
