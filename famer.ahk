@@ -1,4 +1,9 @@
 ﻿#Requires AutoHotkey v2.0
+FileInstall("fish.png", A_ScriptDir "\fish.png", 1)
+FileInstall("pin.png", A_ScriptDir "\pin.png", 1)
+FileInstall("up.png", A_ScriptDir "\up.png", 1)
+FileInstall("relog.png", A_ScriptDir "\relog.png", 1)
+FileInstall("relog2.png", A_ScriptDir "\relog2.png", 1)
 
 if !A_IsAdmin {
     Run '*RunAs "' A_ScriptFullPath '"'
@@ -69,10 +74,11 @@ F3:: {
 
 ; 6. Stop script with F12 (Global so you can stop it even if the game minimizes)
 F12:: {
-    global isRunning
-    isRunning := false
-    MsgBox("Script stopped.", "Status")
-    Reload() ; Instantly stops all loops and sleeps by reloading the script
+    global isRunning, isFirstRun
+	isFirstRun := true
+	if( MsgBox("Script stopped. Do you wish to continue?", "Status", "YesNo Icon!") == "No" ){
+		Reload()
+	}
 }
 
 ; ==========================================
@@ -129,6 +135,7 @@ StartSequence(GuiCtrlObj, Info) {
 RunMainLoop() {
     global isRunning, userPass, userPin, numChar, userChan, savedX, savedY, targetWindow, maxChar, userDelay, accs
     ; 6. Repeat until stopped or numChar reaches maxChar
+	pauseLoop := 0
     while (isRunning) {
         
         ; Ensure the game is still running
@@ -143,6 +150,7 @@ RunMainLoop() {
             WinActivate(targetWindow)
             WinWaitActive(targetWindow, , 2)
         }
+		numChar := Max(1, numChar - 1)
 
         ; 2. Type password, enter
 		Click(712, 425)
@@ -165,7 +173,7 @@ RunMainLoop() {
         Sleep(200 * userDelay) ; Wait for character select screen / PIN screen to load
 
         ; 3. Check for "pin.png", if it appears, type pin
-        if ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "pin.png") {
+        if ImageSearch(&FoundX, &FoundY, 0, 0, 1366, 768, "pin.png") {
             Send(userPin)
             Sleep(200)
             Send("{Enter}")
@@ -174,19 +182,18 @@ RunMainLoop() {
         Sleep(2250 * userDelay)
 		
 		; 4.5 Check for fishing lagoon
-		if !ImageSearch(&UpX, &UpY, 0, 0, A_ScreenWidth, A_ScreenHeight, "fish.png") {
+		if !ImageSearch(&UpX, &UpY, 0, 0, 1366, 768, "fish.png") {
             Send("{Enter}")
 			Sleep(50)
 			Send("@go fish{Enter}")
 			Sleep(1250 * userDelay)
         }
 
-		; 5. If it finds "up.png", click the center of it, press esc, up, enter
 		Loop 3 {
 			Click(savedX, savedY, 2) ; The '2' stands for Double Click
 			Sleep(300)
 			
-			if ImageSearch(&UpX, &UpY, 0, 0, A_ScreenWidth, A_ScreenHeight, "up.png") {
+			if ImageSearch(&UpX, &UpY, 0, 0, 1366, 768, "up.png") {
 				Click(UpX + 5, UpY + 5) ;
 				Sleep(100)
 				Send("{Esc}")
@@ -196,14 +203,42 @@ RunMainLoop() {
 				Send("{Up}")
 				Sleep(100)
 				Send("{Enter}")
-				MouseMove(0, 0, 10)
 				Sleep(1000*userDelay) ; Wait for reset/transition before looping back
+				pauseLoop := 0
 				break
 			}
 			else if (A_Index == 3){
-				MsgBox("Pausing.")
-				SoundBeep 400, 500
-				isRunning := false
+				if(pauseLoop == 1){
+					MsgBox("Attempt to reset failed. Current time: " . FormatTime(A_Now, "HH:mm:ss"))
+					SoundBeep 400, 500
+					isRunning := false
+					pauseLoop := false
+				}
+				else{
+					Loop{
+						Send("{Esc}")
+						Sleep(500)
+						if (ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog.png") || ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog2.png")){
+							break
+						}
+						else if (PixelGetColor(486, 311, "RGB") == "0x000000"){
+							Send("{Enter}")
+							Sleep(100)
+							break
+						}
+						if(A_Index == 3){
+							MsgBox("Attempt to relog failed. Script will be reloaded. Current time: " . FormatTime(A_Now, "HH:mm:ss"))
+							Reload()
+						}
+					}
+					pauseLoop := 1
+					Send("{Up}")
+					Sleep(100)
+					Send("{Enter}")
+					Sleep(1000*userDelay)
+					numChar--
+					continue
+				}
 			}
 			else {
 				ToolTip("Attempt " A_Index " failed")
@@ -301,7 +336,6 @@ nextAcc(){
 	Sleep(1000 * userDelay)
 	Click(700,400)
 	Sleep(100)
-	MouseMove(0,0,10)
 	Send("{Backspace 15}" accs[1][1] "{Tab}")
 	numChar := 1
 	
