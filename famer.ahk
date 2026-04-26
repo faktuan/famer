@@ -153,10 +153,10 @@ RunMainLoop() {
 		numChar := Max(1, numChar)
 
         ; 2. Type password, enter
-		Click(712, 425)
+		Click(712, 425, 2)
 		Sleep(10)
         Send(userPass)
-        Sleep(200)
+        Sleep(200 * userDelay)
         Send("{Enter}")
         Sleep(1000 * userDelay) ; Wait for login screen transition (adjust if needed)
 
