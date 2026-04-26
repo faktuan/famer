@@ -150,7 +150,7 @@ RunMainLoop() {
             WinActivate(targetWindow)
             WinWaitActive(targetWindow, , 2)
         }
-		numChar := Max(1, numChar - 1)
+		numChar := Max(1, numChar)
 
         ; 2. Type password, enter
 		Click(712, 425)
