@@ -4,6 +4,7 @@ FileInstall("pin.png", A_ScriptDir "\pin.png", 1)
 FileInstall("up.png", A_ScriptDir "\up.png", 1)
 FileInstall("relog.png", A_ScriptDir "\relog.png", 1)
 FileInstall("relog2.png", A_ScriptDir "\relog2.png", 1)
+FileInstall("relog3.png", A_ScriptDir "\relog3.png", 1)
 
 if !A_IsAdmin {
     Run '*RunAs "' A_ScriptFullPath '"'
@@ -218,10 +219,13 @@ RunMainLoop() {
 					Loop{
 						Send("{Esc}")
 						Sleep(500)
-						if (ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog.png") || ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog2.png")){
+						if (ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog.png")){
+							Send("{Up}")
+							Sleep(100)
+							Send("{Enter}")
 							break
 						}
-						else if (PixelGetColor(486, 311, "RGB") == "0x000000"){
+						else if ( ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog2.png") || ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog3.png" ) ){
 							Send("{Enter}")
 							Sleep(100)
 							break
@@ -232,9 +236,7 @@ RunMainLoop() {
 						}
 					}
 					pauseLoop := 1
-					Send("{Up}")
-					Sleep(100)
-					Send("{Enter}")
+
 					Sleep(1000*userDelay)
 					numChar--
 					continue
