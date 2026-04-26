@@ -75,9 +75,9 @@ F3:: {
 
 ; 6. Stop script with F12 (Global so you can stop it even if the game minimizes)
 F12:: {
-    global isRunning, isFirstRun
+    global isRunning, isFirstRun, numChar
 	isFirstRun := true
-	if( MsgBox("Script stopped. Do you wish to continue?", "Status", "YesNo Icon!") == "No" ){
+	if( MsgBox("Script stopped. `nLast Character: " . numChar-1 . "`nDo you wish to continue?", "Status", "YesNo Icon!") == "No" ){
 		Reload()
 	}
 }
@@ -158,7 +158,7 @@ RunMainLoop() {
 		Sleep(10)
         Send("{Backspace 15}" userPass)
         Sleep(200)
-        Send("{Enter}")
+        Click(760, 425)
         Sleep(1000 * userDelay) ; Wait for login screen transition (adjust if needed)
 
         ; selWorld(character)
@@ -210,7 +210,7 @@ RunMainLoop() {
 			}
 			else if (A_Index == 3){
 				if(pauseLoop == 1){
-					MsgBox("Attempt to reset failed. Current time: " . FormatTime(A_Now, "HH:mm:ss"))
+					MsgBox("Attempt to reset failed. `nLast Character: " . numChar-1 . "`nCurrent time: " . FormatTime(A_Now, "HH:mm:ss"))
 					SoundBeep 400, 500
 					isRunning := false
 					pauseLoop := false
@@ -218,7 +218,7 @@ RunMainLoop() {
 				else{
 					Loop{
 						Send("{Esc}")
-						Sleep(500)
+						Sleep(750)
 						if (ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog.png")){
 							Send("{Up}")
 							Sleep(100)
@@ -231,7 +231,7 @@ RunMainLoop() {
 							break
 						}
 						else if(A_Index == 3){
-							MsgBox("Attempt to relog failed. Script will be reloaded. Current time: " . FormatTime(A_Now, "HH:mm:ss"))
+							MsgBox("Attempt to relog failed. Script will be reloaded. `nLast Character: " . numChar-1 . "`nCurrent time: " . FormatTime(A_Now, "HH:mm:ss"))
 							Reload()
 						}
 					}
