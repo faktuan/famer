@@ -230,7 +230,7 @@ RunMainLoop() {
 							Sleep(100)
 							break
 						}
-						if(A_Index == 3){
+						else if(A_Index == 3){
 							MsgBox("Attempt to relog failed. Script will be reloaded. Current time: " . FormatTime(A_Now, "HH:mm:ss"))
 							Reload()
 						}
