@@ -218,6 +218,10 @@ RunMainLoop() {
 				}
 				else{
 					Loop{
+						if(A_Index == 4){
+							MsgBox("Attempt to relog failed. Go back to login screen before you click OK. `nLast Character: " . numChar-1 . "`nCurrent time: " . FormatTime(A_Now, "HH:mm:ss"))
+							break
+						}
 						Send("{Esc}")
 						Sleep(1000)
 						if (ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog.png")){
@@ -233,10 +237,6 @@ RunMainLoop() {
 						}
 						else if ( ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog4.png") ){
 							break
-						}
-						else if(A_Index == 3){
-							MsgBox("Attempt to relog failed. Script will be reloaded. `nLast Character: " . numChar-1 . "`nCurrent time: " . FormatTime(A_Now, "HH:mm:ss"))
-							Reload()
 						}
 					}
 					pauseLoop := 1
