@@ -5,6 +5,7 @@ FileInstall("up.png", A_ScriptDir "\up.png", 1)
 FileInstall("relog.png", A_ScriptDir "\relog.png", 1)
 FileInstall("relog2.png", A_ScriptDir "\relog2.png", 1)
 FileInstall("relog3.png", A_ScriptDir "\relog3.png", 1)
+FileInstall("relog4.png", A_ScriptDir "\relog4.png", 1)
 
 if !A_IsAdmin {
     Run '*RunAs "' A_ScriptFullPath '"'
@@ -218,7 +219,7 @@ RunMainLoop() {
 				else{
 					Loop{
 						Send("{Esc}")
-						Sleep(750)
+						Sleep(1000)
 						if (ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog.png")){
 							Send("{Up}")
 							Sleep(100)
@@ -228,6 +229,9 @@ RunMainLoop() {
 						else if ( ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog2.png") || ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog3.png" ) ){
 							Send("{Enter}")
 							Sleep(100)
+							break
+						}
+						else if ( ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog4.png") ){
 							break
 						}
 						else if(A_Index == 3){
