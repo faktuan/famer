@@ -242,6 +242,7 @@ RunMainLoop() {
 					pauseLoop := 1
 
 					Sleep(1000*userDelay)
+					isFirstRun := true
 					numChar--
 					continue
 				}
