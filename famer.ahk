@@ -135,7 +135,7 @@ StartSequence(GuiCtrlObj, Info) {
 ; ==========================================
 
 RunMainLoop() {
-    global isRunning, userPass, userPin, numChar, userChan, savedX, savedY, targetWindow, maxChar, userDelay, accs
+    global isRunning, userPass, userPin, numChar, userChan, savedX, savedY, targetWindow, maxChar, userDelay, accs, isFirstRun
     ; 6. Repeat until stopped or numChar reaches maxChar
 	pauseLoop := 0
     while (isRunning) {
@@ -196,7 +196,7 @@ RunMainLoop() {
 			Sleep(300)
 			
 			if ImageSearch(&UpX, &UpY, 0, 0, 1366, 768, "up.png") {
-				Click(UpX + 5, UpY + 5) ;
+				Click(UpX - 13 , UpY + 105) ;
 				Sleep(100)
 				Send("{Esc}")
 				Sleep(100)
@@ -243,7 +243,7 @@ RunMainLoop() {
 
 					Sleep(1000*userDelay)
 					isFirstRun := true
-					numChar--
+					numChar := numChar - 1
 					continue
 				}
 			}
@@ -359,7 +359,7 @@ nextAcc(){
 			break
 		}
 	}
-	isFirstrun := true
+	isFirstRun := true
 	
 	return true
 }
