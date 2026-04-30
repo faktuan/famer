@@ -27,6 +27,9 @@ global userPin := IniRead("config.ini", "default", "pin", "")
 global numChar := IniRead("config.ini", "default", "char", 1)
 global userChan := IniRead("config.ini", "default", "channel", 1)
 global userDelay := IniRead("config.ini", "default", "delay", 1)
+
+global maxChar
+
 global accs := []
 
 if (Integer(IniRead("config.ini", "default", "multi", 0)) == 1){
@@ -88,7 +91,7 @@ F12:: {
 ; ==========================================
 
 ShowGui() {
-    global userPass, userPin, numChar, userChan, maxChar := 127
+    global userPass, userPin, numChar, userChan, maxChar
     SetupGui := Gui("+AlwaysOnTop", "Login Setup")
     
     ; The inputs now default to the saved global variables so you can easily resume
@@ -105,7 +108,7 @@ ShowGui() {
     Global ChanEdit := SetupGui.Add("Edit", "w200 Number", String(userChan))
 	
 	SetupGui.Add("Text", "w200", "Number of Characters:")
-    Global maxEdit := SetupGui.Add("Edit", "w200 Number", String(maxChar))
+    Global maxEdit := SetupGui.Add("Edit", "w200 Number", String(IsSet(maxChar) ? maxChar : 127))
     
     StartBtn := SetupGui.Add("Button", "w200 h30 default", "Start Sequence")
     StartBtn.OnEvent("Click", StartSequence)
@@ -196,38 +199,34 @@ RunMainLoop() {
 			Sleep(300)
 			
 			if ImageSearch(&UpX, &UpY, 0, 0, 1366, 768, "up.png") {
-				Click(UpX - 13 , UpY + 105) ;
+				;Click(UpX - 13 , UpY + 105)
+				Click(UpX + 5 , UpY + 5)
 				Sleep(100)
-				Send("{Esc}")
+				Click(1280, 777)
 				Sleep(100)
-				Send("{Esc}")
-				Sleep(100)
-				Send("{Up}")
-				Sleep(100)
-				Send("{Enter}")
+				Click(1245, 745)
 				Sleep(1000*userDelay) ; Wait for reset/transition before looping back
 				pauseLoop := 0
 				break
 			}
 			else if (A_Index == 3){
 				if(pauseLoop == 1){
-					MsgBox("Attempt to reset failed. `nLast Character: " . numChar-1 . "`nCurrent time: " . FormatTime(A_Now, "HH:mm:ss"))
 					SoundBeep 400, 500
+					MsgBox("Attempt to reset failed. `nLast Character: " . numChar-1 . "`nCurrent time: " . FormatTime(A_Now, "HH:mm:ss"))
 					isRunning := false
 					pauseLoop := false
 				}
 				else{
 					Loop{
 						if(A_Index == 4){
+							SoundBeep 400, 500
 							MsgBox("Attempt to relog failed. Go back to login screen before you click OK. `nLast Character: " . numChar-1 . "`nCurrent time: " . FormatTime(A_Now, "HH:mm:ss"))
 							break
 						}
 						Send("{Esc}")
 						Sleep(1000)
 						if (ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog.png")){
-							Send("{Up}")
-							Sleep(100)
-							Send("{Enter}")
+							Click(1245, 745)
 							break
 						}
 						else if ( ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog2.png") || ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog3.png" ) ){
@@ -255,8 +254,9 @@ RunMainLoop() {
 		}
 	    if (numChar > maxChar && isRunning) {
 			if(!nextAcc()){
+				SoundBeep 400, 100
+				SoundBeep 100, 300
 				MsgBox("Finished: Reached character limit (" maxChar ").")
-				SoundBeep 400, 500
 				isRunning := false
 				break
 			}
