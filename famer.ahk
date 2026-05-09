@@ -198,7 +198,7 @@ RunMainLoop() {
 			Click(savedX, savedY, 2) ; The '2' stands for Double Click
 			Sleep(300)
 			
-			if ImageSearch(&UpX, &UpY, 0, 0, 1366, 768, "up.png") {
+			if ImageSearch(&UpX, &UpY, 0, 0, 1366, 768, "*20 up.png") {
 				;Click(UpX - 13 , UpY + 105)
 				Click(UpX + 5 , UpY + 5)
 				Sleep(100)
@@ -213,6 +213,7 @@ RunMainLoop() {
 				if(pauseLoop == 1){
 					SoundBeep 400, 500
 					MsgBox("Attempt to reset failed. `nLast Character: " . numChar-1 . "`nCurrent time: " . FormatTime(A_Now, "HH:mm:ss"))
+					numChar--
 					isRunning := false
 					pauseLoop := false
 				}
@@ -242,7 +243,7 @@ RunMainLoop() {
 
 					Sleep(1000*userDelay)
 					isFirstRun := true
-					numChar := numChar - 1
+					numChar--
 					continue
 				}
 			}
