@@ -187,7 +187,7 @@ RunMainLoop() {
         Sleep(2250 * userDelay)
 		
 		; 4.5 Check for fishing lagoon
-		if !ImageSearch(&UpX, &UpY, 0, 0, 1366, 768, "fish.png") {
+		if !ImageSearch(&UpX, &UpY, 0, 0, 1366, 768, "*20 fish.png") {
             Send("{Enter}")
 			Sleep(50)
 			Send("@go fish{Enter}")
