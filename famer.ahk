@@ -67,10 +67,11 @@ F2:: {
 
 ; 1. Press F3 to open the setup menu and start
 F3:: {
-    global savedX
+    global savedX, savedY
     if (savedX == -1) {
-        MsgBox("Please press F2 to save a coordinate before starting.", "Error")
-        return
+		savedX := 1277
+		savedY := 465
+		MsgBox("No coordinate was selected. The default coordinate (between the trees on the right of portal) is now set.", "Warning", "4096")
     }
     ShowGui()
 }
