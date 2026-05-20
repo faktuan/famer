@@ -1,5 +1,6 @@
 ﻿#Requires AutoHotkey v2.0
 FileInstall("fish.png", A_ScriptDir "\fish.png", 1)
+FileInstall("fm.png", A_ScriptDir "\fm.png", 1)
 FileInstall("pin.png", A_ScriptDir "\pin.png", 1)
 FileInstall("up.png", A_ScriptDir "\up.png", 1)
 FileInstall("relog.png", A_ScriptDir "\relog.png", 1)
@@ -28,7 +29,7 @@ global numChar := IniRead("config.ini", "default", "char", 1)
 global userChan := IniRead("config.ini", "default", "channel", 1)
 global userDelay := IniRead("config.ini", "default", "delay", 1)
 
-global maxChar
+global maxChar, fish, fm
 
 global accs := []
 
@@ -103,22 +104,25 @@ ShowGui() {
     Global PinEdit := SetupGui.Add("Edit", "w200 Password Number", userPin)
     
     SetupGui.Add("Text", "w200", "Starting Character Number:")
-    Global CharEdit := SetupGui.Add("Edit", "w200 Number", String(numChar))
+    Global CharEdit := SetupGui.Add("Edit", "w200 Number Limit3", String(numChar))
     
     SetupGui.Add("Text", "w200", "Channel:")
-    Global ChanEdit := SetupGui.Add("Edit", "w200 Number", String(userChan))
+    Global ChanEdit := SetupGui.Add("Edit", "w200 Number Limit2", String(userChan))
 	
 	SetupGui.Add("Text", "w200", "Number of Characters:")
-    Global maxEdit := SetupGui.Add("Edit", "w200 Number", String(IsSet(maxChar) ? maxChar : 127))
+    Global maxEdit := SetupGui.Add("Edit", "w200 Number Limit3", String(IsSet(maxChar) ? maxChar : 127))
+
+	Global goFish := SetupGui.Add("Radio", "xm Group Checked", "Fish")
+	Global goFM := SetupGui.Add("Radio", "x+m", "FM")
     
-    StartBtn := SetupGui.Add("Button", "w200 h30 default", "Start Sequence")
-    StartBtn.OnEvent("Click", StartSequence)
+    StartBtn := SetupGui.Add("Button", "xm w200 h30 default", "Start Faming")
+    StartBtn.OnEvent("Click", StartFaming)
     
     SetupGui.Show()
 }
 
-StartSequence(GuiCtrlObj, Info) {
-    global userPass, userPin, numChar, userChan, maxChar, isRunning, isFirstRun
+StartFaming(GuiCtrlObj, Info) {
+    global userPass, userPin, numChar, userChan, maxChar, isRunning, isFirstRun, fish, fm
     
     ; Save GUI inputs to variables
     userPass := PassEdit.Value
@@ -126,6 +130,8 @@ StartSequence(GuiCtrlObj, Info) {
     numChar := Integer(CharEdit.Value)
     userChan := Integer(ChanEdit.Value)
 	maxChar := Integer(maxEdit.Value)
+	fish := goFish.Value == 1
+	fm := goFM.Value == 1
     
     GuiCtrlObj.Gui.Destroy() ; Close the GUI
     
@@ -139,7 +145,7 @@ StartSequence(GuiCtrlObj, Info) {
 ; ==========================================
 
 RunMainLoop() {
-    global isRunning, userPass, userPin, numChar, userChan, savedX, savedY, targetWindow, maxChar, userDelay, accs, isFirstRun
+    global isRunning, userPass, userPin, numChar, userChan, savedX, savedY, targetWindow, maxChar, userDelay, accs, isFirstRun, fish, fm
     ; 6. Repeat until stopped or numChar reaches maxChar
 	pauseLoop := 0
     while (isRunning) {
@@ -187,13 +193,26 @@ RunMainLoop() {
 		
         Sleep(2250 * userDelay)
 		
-		; 4.5 Check for fishing lagoon
-		if !ImageSearch(&UpX, &UpY, 0, 0, 1366, 768, "*20 fish.png") {
-            Send("{Enter}")
-			Sleep(50)
-			Send("@go fish{Enter}")
-			Sleep(1250 * userDelay)
-        }
+		; 4.5 Check for fishing lagoon or fm
+		if(fish){
+			if ( !ImageSearch(&UpX, &UpY, 600, 280, 680, 330, "*20 fish.png") ){
+				Send("{Enter}")
+				Sleep(50)
+				Send("@go fish{Enter}")
+				Sleep(1250 * userDelay)
+			}
+		}
+		else if (fm){
+			if ( !ImageSearch(&UpX, &UpY, 0, 0, 1366, 768, "*20 fm.png") ){
+				Send("{Enter}")
+				Sleep(50)
+				Send("@go fm{Enter}")
+				Sleep(1250 * userDelay)
+			}
+		}
+		else{
+			MsgBox("Map selection not found.")
+		}
 
 		Loop 3 {
 			Click(savedX, savedY, 2) ; The '2' stands for Double Click
@@ -254,7 +273,7 @@ RunMainLoop() {
 				SoundBeep 800, 100
 			}
 		}
-	    if (numChar > maxChar && isRunning) {
+	    if (numChar > maxChar) {
 			if(!nextAcc()){
 				SoundBeep 400, 100
 				SoundBeep 100, 300
@@ -342,7 +361,7 @@ nextAcc(){
 	if(accs.Length == 0){
 		return false
 	}
-	Sleep(1000 * userDelay)
+	Sleep(1100 * userDelay)
 	Click(700,400)
 	Sleep(100)
 	Send("{Backspace 15}" accs[1][1] "{Tab}")
