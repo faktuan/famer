@@ -70,9 +70,9 @@ F2:: {
 F3:: {
     global savedX, savedY
     if (savedX == -1) {
-		savedX := 1086
-		savedY := 541
-		MsgBox("No coordinate was selected. The default coordinate (between the trees on the right of portal) is now set.", "Warning", "4096")
+		savedX := IniRead("config.ini", "default", "defaultX", "1086")
+		savedY := IniRead("config.ini", "default", "defaultY", "541")
+		MsgBox("No coordinate was selected. The default coordinate is now set.", "Warning", "4096")
     }
     ShowGui()
 }
@@ -266,6 +266,7 @@ RunMainLoop() {
 					numChar--
 					continue
 				}
+				SoundBeep 800, 100
 			}
 			else {
 				ToolTip("Attempt " A_Index " failed")
