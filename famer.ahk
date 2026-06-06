@@ -9,8 +9,7 @@ FileInstall("relog3.png", A_ScriptDir "\relog3.png", 1)
 FileInstall("relog4.png", A_ScriptDir "\relog4.png", 1)
 
 if !A_IsAdmin {
-    Run '*RunAs "' A_ScriptFullPath '" ' A_Args.Length ? ControlGetText(A_Args) : ""
-    ExitApp()
+    Reloader()
 }
 
 CoordMode("Mouse", "Window")
@@ -73,7 +72,7 @@ F12:: {
     global isRunning, isFirstRun, numChar
 	isFirstRun := true
 	if( MsgBox("Script stopped. `nLast Character: " . numChar-1 . "`nDo you wish to continue?", "Status", "YesNo Icon!") == "No" ){
-		Reload()
+		Reloader()
 	}
 	WinActivate(targetWindow)
 }
@@ -405,4 +404,9 @@ nextAcc(){
 
 	isFirstRun := true
 	return true
+}
+
+Reloader(){
+	Run '*RunAs "' A_ScriptFullPath '" ' A_Args.Length ? ControlGetText(A_Args) : ""
+    ExitApp()
 }
