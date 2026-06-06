@@ -9,15 +9,19 @@ FileInstall("relog3.png", A_ScriptDir "\relog3.png", 1)
 FileInstall("relog4.png", A_ScriptDir "\relog4.png", 1)
 
 if !A_IsAdmin {
-    Run '*RunAs "' A_ScriptFullPath '" ' ControlGetText(A_Args)
-    ExitApp
+    Run '*RunAs "' A_ScriptFullPath '" ' A_Args.Length ? ControlGetText(A_Args) : ""
+    ExitApp()
 }
 
 CoordMode("Mouse", "Window")
 CoordMode("Pixel", "Window")
 
 ; Global variables
-global config := !A_Args.Length ? A_Args[1] : "config.ini"
+global config 
+	try 
+		config := A_Args[1] . "\config.ini"
+	catch 
+		config := "config.ini"
 global targetWindow := "ahk_exe kaizen v92.exe"
 global savedX := -1
 global savedY := -1
