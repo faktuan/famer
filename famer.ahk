@@ -9,45 +9,30 @@ FileInstall("relog3.png", A_ScriptDir "\relog3.png", 1)
 FileInstall("relog4.png", A_ScriptDir "\relog4.png", 1)
 
 if !A_IsAdmin {
-    Run '*RunAs "' A_ScriptFullPath '"'
+    Run '*RunAs "' A_ScriptFullPath '" ' ControlGetText(A_Args)
     ExitApp
 }
-
 
 CoordMode("Mouse", "Window")
 CoordMode("Pixel", "Window")
 
 ; Global variables
+global config := !A_Args.Length ? A_Args[1] : "config.ini"
 global targetWindow := "ahk_exe kaizen v92.exe"
 global savedX := -1
 global savedY := -1
 global isRunning := false
 
-global userPass := IniRead("config.ini", "default", "password", "")
-global userPin := IniRead("config.ini", "default", "pin", "")
-global numChar := IniRead("config.ini", "default", "char", 1)
-global userChan := IniRead("config.ini", "default", "channel", 1)
-global userDelay := IniRead("config.ini", "default", "delay", 1)
+global userPass := IniRead(config, "default", "password", "")
+global userPin := IniRead(config, "default", "pin", "")
+global numChar := IniRead(config, "default", "char", 1)
+global userChan := IniRead(config, "default", "channel", 1)
+global userDelay := IniRead(config, "default", "delay", 1)
+global defame := IniRead(config, "default", "defame", 0)
 
-global maxChar, fish, fm
+global maxChar, fish, fm, defamer
 
 global accs := []
-
-if (Integer(IniRead("config.ini", "default", "multi", 0)) == 1){
-	sectionText := IniRead("config.ini", "accs")
-
-	Loop Parse, sectionText, "`n", "`r" {
-		parts := StrSplit(A_LoopField, "=", " `t", 2) 
-		
-		if (parts.Length < 1)
-			continue ; Skip if it's a blank or invalid line
-			
-		rowData := parts[2]
-		
-		cleanRow := RegExReplace(rowData, "\s+", " ")
-		accs.Push(StrSplit(cleanRow, " "))
-	}
-}
 
 global isFirstRun := true ; Tracks if the script is resuming from a fresh login
 
@@ -70,8 +55,8 @@ F2:: {
 F3:: {
     global savedX, savedY
     if (savedX == -1) {
-		savedX := IniRead("config.ini", "default", "defaultX", "1086")
-		savedY := IniRead("config.ini", "default", "defaultY", "541")
+		savedX := IniRead(config, "default", "defaultX", "1086")
+		savedY := IniRead(config, "default", "defaultY", "541")
 		MsgBox("No coordinate was selected. The default coordinate is now set.", "Warning", "4096")
     }
     ShowGui()
@@ -86,6 +71,7 @@ F12:: {
 	if( MsgBox("Script stopped. `nLast Character: " . numChar-1 . "`nDo you wish to continue?", "Status", "YesNo Icon!") == "No" ){
 		Reload()
 	}
+	WinActivate(targetWindow)
 }
 
 ; ==========================================
@@ -93,7 +79,7 @@ F12:: {
 ; ==========================================
 
 ShowGui() {
-    global userPass, userPin, numChar, userChan, maxChar
+    global userPass, userPin, numChar, userChan, maxChar, defame
     SetupGui := Gui("+AlwaysOnTop", "Login Setup")
     
     ; The inputs now default to the saved global variables so you can easily resume
@@ -114,6 +100,7 @@ ShowGui() {
 
 	Global goFish := SetupGui.Add("Radio", "xm Group Checked", "Fish")
 	Global goFM := SetupGui.Add("Radio", "x+m", "FM")
+	Global doDefame := SetupGui.Add("Checkbox", "x+m" . (defame ? " Checked" : ""), "Defame")
     
     StartBtn := SetupGui.Add("Button", "xm w200 h30 default", "Start Faming")
     StartBtn.OnEvent("Click", StartFaming)
@@ -122,7 +109,7 @@ ShowGui() {
 }
 
 StartFaming(GuiCtrlObj, Info) {
-    global userPass, userPin, numChar, userChan, maxChar, isRunning, isFirstRun, fish, fm
+    global userPass, userPin, numChar, userChan, maxChar, isRunning, isFirstRun, fish, fm, defamer
     
     ; Save GUI inputs to variables
     userPass := PassEdit.Value
@@ -130,6 +117,7 @@ StartFaming(GuiCtrlObj, Info) {
     numChar := Integer(CharEdit.Value)
     userChan := Integer(ChanEdit.Value)
 	maxChar := Integer(maxEdit.Value)
+	defamer := doDefame.Value ? 20 : 5
 	fish := goFish.Value == 1
 	fm := goFM.Value == 1
     
@@ -162,7 +150,15 @@ RunMainLoop() {
             WinActivate(targetWindow)
             WinWaitActive(targetWindow, , 2)
         }
+
 		numChar := Max(1, numChar)
+		if(!userPass)
+		{
+			if(!nextAcc()){
+				MsgBox("Info not entered. Try again.", "Error", "4096")
+				break
+			}
+		}
 
         ; 2. Type password, enter
 		Click(712, 425)
@@ -220,7 +216,7 @@ RunMainLoop() {
 			
 			if ImageSearch(&UpX, &UpY, 0, 0, 1366, 768, "*20 up.png") {
 				;Click(UpX - 13 , UpY + 105)
-				Click(UpX + 5 , UpY + 5)
+				Click(UpX + defamer , UpY + 5)
 				Sleep(100)
 				Click(1280, 777)
 				Sleep(100)
@@ -358,9 +354,20 @@ selChar() {
 }
 
 nextAcc(){
-	global accs, numChar, maxChar, userDelay, targetWindow, userPass, userPin
-	if(accs.Length == 0){
-		return false
+	global accs, numChar, maxChar, userDelay, targetWindow, userPass, userPin, config
+	if (Integer(IniRead(config, "default", "multi", 0)) == 1){
+		sectionText := IniRead(config, "accs")
+		accs.Length := 0
+
+		; 1. Extract everything after the first "=" on the first line
+		if RegExMatch(sectionText, "^[^=]+=\s*(.+)", &match) {
+			; 2. Clean up extra spaces and split directly into the accs array
+			cleanRow := RegExReplace(match[1], "\s+", " ")
+			accs.Push(StrSplit(cleanRow, " "))
+		}
+		else{
+			return false
+		}
 	}
 	Sleep(1100 * userDelay)
 	Click(700,400)
@@ -374,10 +381,10 @@ nextAcc(){
 	
 	accs.RemoveAt(1)
 	Loop {
-		val := IniRead("config.ini", "accs", A_Index, "")
+		val := IniRead(config, "accs", A_Index, "")
 
 		if (val != "") {
-			IniDelete("config.ini", "accs", A_Index)
+			IniDelete(config, "accs", A_Index)
 			break
 		}
 	}

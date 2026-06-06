@@ -3,3 +3,4 @@ config.ini
 accs.exe
 /check
 config.ini
+*.ini
