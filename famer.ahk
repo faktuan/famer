@@ -17,11 +17,11 @@ CoordMode("Mouse", "Window")
 CoordMode("Pixel", "Window")
 
 ; Global variables
-global config 
-	try 
-		config := A_Args[1] . "\config.ini"
-	catch 
-		config := "config.ini"
+global path := A_WorkingDir
+try {
+	path := A_Args[1]
+}
+global config := path . "\config.ini"
 global targetWindow := "ahk_exe kaizen v92.exe"
 global savedX := -1
 global savedY := -1
@@ -359,20 +359,38 @@ selChar() {
 
 nextAcc(){
 	global accs, numChar, maxChar, userDelay, targetWindow, userPass, userPin, config
+	Loop {
+		try {
+			lockHandle := FileOpen(path . "\config.lock", "w-r")
+			break
+		}
+		catch
+			Sleep (Random(1,500))
+	}
 	if (Integer(IniRead(config, "default", "multi", 0)) == 1){
 		sectionText := IniRead(config, "accs")
 		accs.Length := 0
-
 		; 1. Extract everything after the first "=" on the first line
-		if RegExMatch(sectionText, "^[^=]+=\s*(.+)", &match) {
-			; 2. Clean up extra spaces and split directly into the accs array
-			cleanRow := RegExReplace(match[1], "\s+", " ")
+		if RegExMatch(sectionText, "^([^=]+)=\s*(.+)", &match) {
+			; 1. Retrieve and clean up the key number/name
+			keyName := Trim(match[1]) ;
+
+			; 2. Clean up extra spaces from the value (now match[2] instead of match[1])
+
+			cleanRow := RegExReplace(match[2], "\s+", " ")
+			; 3. Push to array
 			accs.Push(StrSplit(cleanRow, " "))
+			IniDelete(config, "accs", keyName)
 		}
 		else{
 			return false
 		}
 	}
+	try {
+		lockHandle.Close()
+		lockHandle := FileDelete(path . "\config.lock")
+	}
+
 	Sleep(1100 * userDelay)
 	Click(700,400)
 	Sleep(100)
@@ -384,15 +402,7 @@ nextAcc(){
 	maxChar := accs[1][4]
 	
 	accs.RemoveAt(1)
-	Loop {
-		val := IniRead(config, "accs", A_Index, "")
 
-		if (val != "") {
-			IniDelete(config, "accs", A_Index)
-			break
-		}
-	}
 	isFirstRun := true
-	
 	return true
 }
