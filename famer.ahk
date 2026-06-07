@@ -410,7 +410,7 @@ nextAcc(){
 Reloader(){
 	args := ""
 	Loop A_Args.Length{
-		args .= ' "' args[A_Index] '"'
+		args .= ' "' A_Args[A_Index] '"'
 	}
 	Run('*RunAs "' A_AhkPath '" /restart "' A_ScriptFullPath '"' args)
     ExitApp()
