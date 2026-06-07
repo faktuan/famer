@@ -408,6 +408,10 @@ nextAcc(){
 }
 
 Reloader(){
-	Run '*RunAs "' A_ScriptFullPath '" ' A_Args.Length ? ControlGetText(A_Args) : ""
+	args := ""
+	Loop A_Args.Length{
+		args .= ' "' args[A_Index] '"'
+	}
+	Run('*RunAs "' A_AhkPath '" /restart "' A_ScriptFullPath '"' args)
     ExitApp()
 }
