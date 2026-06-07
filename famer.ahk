@@ -360,34 +360,35 @@ nextAcc(){
 	global accs, numChar, maxChar, userDelay, targetWindow, userPass, userPin, config
 	Loop {
 		try {
-			lockHandle := FileOpen(path . "\config.lock", "w-r")
+			lockHandle := FileOpen(path "\config.lock", "w-r")
 			break
-		}
-		catch
-			Sleep (Random(1,500))
-	}
-	if (Integer(IniRead(config, "default", "multi", 0)) == 1){
-		sectionText := IniRead(config, "accs")
-		accs.Length := 0
-		; 1. Extract everything after the first "=" on the first line
-		if RegExMatch(sectionText, "^([^=]+)=\s*(.+)", &match) {
-			; 1. Retrieve and clean up the key number/name
-			keyName := Trim(match[1]) ;
-
-			; 2. Clean up extra spaces from the value (now match[2] instead of match[1])
-
-			cleanRow := RegExReplace(match[2], "\s+", " ")
-			; 3. Push to array
-			accs.Push(StrSplit(cleanRow, " "))
-			IniDelete(config, "accs", keyName)
-		}
-		else{
-			return false
+		} catch {
+			Sleep(Random(1, 500))
 		}
 	}
+
 	try {
-		lockHandle.Close()
-		lockHandle := FileDelete(path . "\config.lock")
+		if (Integer(IniRead(config, "default", "multi", 0)) == 1) {
+			sectionText := IniRead(config, "accs")
+			accs.Length := 0
+			
+			; Extract everything after the first "=" on the first line
+			if RegExMatch(sectionText, "^([^=]+)=\s*(.+)", &match) {
+				keyName := Trim(match[1])
+				cleanRow := RegExReplace(match[2], "\s+", " ")
+				
+				accs.Push(StrSplit(cleanRow, " "))
+				IniDelete(config, "accs", keyName)
+			} else {
+				return false ; The 'finally' block below will run immediately before this returns
+			}
+		}
+	} finally {
+		; 3. This block is guaranteed to run whether the code succeeds or returns false
+		try{
+			lockHandle.Close()
+			FileDelete(path "\config.lock")
+		}
 	}
 
 	Sleep(1100 * userDelay)
