@@ -364,7 +364,6 @@ nextAcc(){
 	Loop {
 		try {
 			lockHandle := FileOpen(path "\config.lock", "w-r")
-			try {
 			sectionText := IniRead(config, "accs")
 			accs.Length := 0
 			
@@ -379,7 +378,6 @@ nextAcc(){
 			} 
 			else
 				return false
-		}
 		} catch {
 			Sleep(Random(1, 500))
 		} finally{
