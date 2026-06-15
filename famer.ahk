@@ -358,45 +358,46 @@ selChar() {
 
 nextAcc(){
 	global accs, numChar, maxChar, userDelay, targetWindow, userPass, userPin, config
+	if (Integer(IniRead(config, "default", "multi", 0)) == 0)
+		return false
+
 	Loop {
 		try {
 			lockHandle := FileOpen(path "\config.lock", "w-r")
-			break
-		} catch {
-			Sleep(Random(1, 500))
-		}
-	}
-
-	try {
-		if (Integer(IniRead(config, "default", "multi", 0)) == 1) {
+			try {
 			sectionText := IniRead(config, "accs")
 			accs.Length := 0
 			
-			; Extract everything after the first "=" on the first line
+			; Extract everything on the first line
 			if RegExMatch(sectionText, "^([^=]+)=\s*(.+)", &match) {
 				keyName := Trim(match[1])
 				cleanRow := RegExReplace(match[2], "\s+", " ")
 				
 				accs.Push(StrSplit(cleanRow, " "))
 				IniDelete(config, "accs", keyName)
-			} else {
-				return false ; The 'finally' block below will run immediately before this returns
-			}
+				break
+			} 
+			else
+				return false
 		}
-	} finally {
-		; 3. This block is guaranteed to run whether the code succeeds or returns false
-		try{
-			lockHandle.Close()
-			FileDelete(path "\config.lock")
+		} catch {
+			Sleep(Random(1, 500))
+		} finally{
+			try{
+					lockHandle.Close()
+					FileDelete(path "\config.lock")
+				}
 		}
 	}
 
 	Sleep(1100 * userDelay)
 	Click(700,400)
 	Sleep(100)
-	Send("{Backspace 15}" accs[1][1] "{Tab}")
+	Send("{Backspace 15}" accs[1][1])
+	Sleep(100)
+	Send("{Tab}")
+
 	numChar := 1
-	
 	userPass := accs[1][2]
 	userPin := accs[1][3]
 	maxChar := accs[1][4]
