@@ -363,7 +363,7 @@ nextAcc(){
 
 	Loop {
 		try {
-			lockHandle := FileOpen(path "\config.lock", "w-r")
+			lockHandle := FileOpen(path "\config.lock", "w-rwd")
 			sectionText := IniRead(config, "accs")
 			accs.Length := 0
 			
