@@ -331,11 +331,11 @@ selChar() {
         targetSlot := Mod(numChar - 1, 15)
 		Loop 14 {
 			Send("{Left}")
-			Sleep(20 * userDelay)
+			Sleep(10 * userDelay)
 		}
         Loop targetSlot-1 {
             Send("{Right}")
-            Sleep(20 * userDelay)
+            Sleep(10 * userDelay)
         }
         isFirstRun := false ; Set to false so subsequent loops go back to normal logic
     }
@@ -343,12 +343,12 @@ selChar() {
 	if (Mod(numChar - 1, 15) == 0) {
 		Loop 14 {
 			Send("{Left}")
-			Sleep(20 * userDelay)
+			Sleep(10 * userDelay)
 		}
 	}
 	else {
 		Send("{Right}")
-		Sleep(20 * userDelay)
+		Sleep(10 * userDelay)
 	}
     
     Sleep(200)
