@@ -32,6 +32,7 @@ global numChar := IniRead(config, "default", "char", 1)
 global userChan := IniRead(config, "default", "channel", 1)
 global userDelay := IniRead(config, "default", "delay", 1)
 global defame := IniRead(config, "default", "defame", 0)
+global rand := IniRead(config, "default", "random", 0)
 
 global maxChar, fish, fm, defamer
 
@@ -136,7 +137,7 @@ StartFaming(GuiCtrlObj, Info) {
 ; ==========================================
 
 RunMainLoop() {
-    global isRunning, userPass, userPin, numChar, userChan, savedX, savedY, targetWindow, maxChar, userDelay, accs, isFirstRun, fish, fm
+    global isRunning, userPass, userPin, numChar, userChan, savedX, savedY, targetWindow, maxChar, userDelay, accs, isFirstRun, fish, fm, rand
     ; 6. Repeat until stopped or numChar reaches maxChar
 	pauseLoop := 0
     while (isRunning) {
@@ -282,6 +283,7 @@ RunMainLoop() {
 				break
 			}
 		}
+		Sleep(Random(0, rand))
     }
 }
 
