@@ -32,7 +32,7 @@ global numChar := IniRead(config, "default", "char", 1)
 global userChan := IniRead(config, "default", "channel", 1)
 global userDelay := IniRead(config, "default", "delay", 1)
 global defame := IniRead(config, "default", "defame", 0)
-global rand := IniRead(config, "default", "random", 0)
+global rand := IniRead(config, "default", "rand", 0)
 
 global maxChar, fish, fm, defamer
 
@@ -137,7 +137,7 @@ StartFaming(GuiCtrlObj, Info) {
 ; ==========================================
 
 RunMainLoop() {
-    global isRunning, userPass, userPin, numChar, userChan, savedX, savedY, targetWindow, maxChar, userDelay, accs, isFirstRun, fish, fm, rand
+	global isRunning, userPass, userPin, numChar, userChan, savedX, savedY, targetWindow, maxChar, userDelay, accs, isFirstRun, fish, fm, rand
     ; 6. Repeat until stopped or numChar reaches maxChar
 	pauseLoop := 0
     while (isRunning) {
@@ -167,7 +167,8 @@ RunMainLoop() {
         ; 2. Type password, enter
 		Click(712, 425)
 		Sleep(10)
-        Send("{Backspace 15}" userPass)
+        Send("{Backspace 15}")
+		SendText(userPass)
         Sleep(200)
         Click(760, 425)
         Sleep(1000 * userDelay) ; Wait for login screen transition (adjust if needed)
@@ -186,7 +187,7 @@ RunMainLoop() {
 
         ; 3. Check for "pin.png", if it appears, type pin
         if ImageSearch(&FoundX, &FoundY, 0, 0, 1366, 768, "pin.png") {
-            Send(userPin)
+            SendText(userPin)
             Sleep(200)
             Send("{Enter}")
         }
