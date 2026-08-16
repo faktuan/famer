@@ -233,6 +233,7 @@ RunMainLoop() {
 			else if (A_Index == 3){
 				if(pauseLoop == 1){
 					SoundBeep 400, 500
+					Logout()
 					MsgBox("Attempt to reset failed. `nLast Character: " . numChar-1 . "`nCurrent time: " . FormatTime(A_Now, "HH:mm:ss"))
 					numChar--
 					isRunning := false
@@ -245,20 +246,8 @@ RunMainLoop() {
 							MsgBox("Attempt to relog failed. Go back to login screen before you click OK. `nLast Character: " . numChar-1 . "`nCurrent time: " . FormatTime(A_Now, "HH:mm:ss"))
 							break
 						}
-						Send("{Esc}")
-						Sleep(1000)
-						if (ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog.png")){
-							Click(1245, 745)
+						if(Logout())
 							break
-						}
-						else if ( ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog2.png") || ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog3.png" ) ){
-							Send("{Enter}")
-							Sleep(100)
-							break
-						}
-						else if ( ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog4.png") ){
-							break
-						}
 					}
 					pauseLoop := 1
 
@@ -407,6 +396,23 @@ nextAcc(){
 
 	isFirstRun := true
 	return true
+}
+
+Logout(){
+	Send("{Esc}")
+	Sleep(1000)
+	if (ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog.png")){
+		Click(1245, 745)
+		return 1
+	}
+	else if ( ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog2.png") || ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog3.png" ) ){
+		Send("{Enter}")
+		Sleep(100)
+		return 1
+	}
+	else if ( ImageSearch(&UpX, &UpY, 0, 0, 1366, 728, "relog4.png") ){
+		return 1
+	}
 }
 
 Reloader(){
