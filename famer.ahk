@@ -16,7 +16,7 @@ CoordMode("Mouse", "Window")
 CoordMode("Pixel", "Window")
 
 ; Global variables
-global path := IniRead(config, "default", "accs", A_WorkingDir)
+global path := IniRead(A_WorkingDir . "\config.ini", "default", "accs", A_WorkingDir)
 global config := path . "\config.ini"
 global targetWindow := "ahk_exe kaizen v92.exe"
 global savedX := -1
